@@ -1,0 +1,40 @@
+from sagemaker.sklearn.processing import ScriptProcessor
+from sagemaker.processing import ProcessingInput, ProcessingOutput
+import os
+
+evaluation_path = os.path.join(base_local_directory, "evaluation.py")
+
+eval_processor = ScriptProcessor(
+    image_uri=sagemaker.image_uris.retrieve(
+        framework="sklearn",
+        region=region,
+        version="1.2-1",
+        py_version="py3",
+        instance_type="ml.m5.large"
+    ),
+    command=["python3"],
+    role=role,
+    instance_type="ml.m5.large",
+    instance_count=1,
+    sagemaker_session=sagemaker_session,
+)
+
+eval_processor.run(
+    inputs=[
+        ProcessingInput(
+            source=sklearn_estimator.model_data,
+            destination="/opt/ml/processing/model"
+        ),
+        ProcessingInput(
+            source=preprocessed_test_data,
+            destination="/opt/ml/processing/test"
+        )
+    ],
+    outputs=[
+        ProcessingOutput(
+            output_name="evaluation",
+            source="/opt/ml/processing/evaluation"
+        )
+    ],
+    code=evaluation_path
+)
