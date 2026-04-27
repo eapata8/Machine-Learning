@@ -1,0 +1,16 @@
+from sagemaker.sklearn.estimator import SKLearn
+import os
+
+FRAMEWORK_VERSION = "1.2-1"
+
+training_path = os.path.join(base_local_directory, "training.py")
+
+sklearn = SKLearn(
+    entry_point=training_path,
+    framework_version=FRAMEWORK_VERSION,
+    instance_type="ml.c4.xlarge",
+    role=role,
+    sagemaker_session=sagemaker_session,
+)
+
+sklearn.fit({"train": preprocessed_training_data})
